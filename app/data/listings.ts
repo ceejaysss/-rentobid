@@ -1,0 +1,445 @@
+import { type Listing } from "../components/ListingCard";
+
+export type ListingDetail = Listing & {
+  description: string;
+  gallery: string[];
+  features: string[];
+  hostSince: string;
+  hostAvatar: string;
+};
+
+export const LISTINGS: ListingDetail[] = [
+  {
+    id: "1",
+    title: "Modern Loft in SoHo",
+    location: "New York City, NY",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 4200,
+    startingBid: 3500,
+    rating: 4.97,
+    reviewCount: 142,
+    bidsCount: 18,
+    endsIn: "2h 14m",
+    host: "Marcus J.",
+    hostSince: "2019",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+    description:
+      "A stunning open-plan loft in the heart of SoHo. Soaring 14-foot ceilings, exposed brick, and floor-to-ceiling windows flood the space with natural light. Steps from top galleries, boutiques, and restaurants. Designed for those who demand the best.",
+    features: [
+      "2 Bedrooms",
+      "2 Bathrooms",
+      "1,800 sq ft",
+      "City view",
+      "Doorman",
+      "Gym",
+      "Rooftop access",
+      "Pet friendly",
+    ],
+  },
+  {
+    id: "2",
+    title: "Pacific Heights Victorian",
+    location: "San Francisco, CA",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+    ],
+    type: "fixed",
+    price: 5800,
+    rating: 4.89,
+    reviewCount: 98,
+    host: "Claire R.",
+    hostSince: "2021",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+    description:
+      "An immaculately restored Victorian in one of San Francisco's most sought-after neighborhoods. Original hardwood floors, ornate crown moldings, and a private garden. Walk to top restaurants and the waterfront. Truly a rare find.",
+    features: [
+      "3 Bedrooms",
+      "2.5 Bathrooms",
+      "2,200 sq ft",
+      "Private garden",
+      "Parking included",
+      "Fireplace",
+      "Bay views",
+      "Washer/Dryer",
+    ],
+  },
+  {
+    id: "3",
+    title: "Tesla Model S Plaid",
+    location: "Los Angeles, CA",
+    category: "Car",
+    imageUrl:
+      "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&q=80",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+      "https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 1100,
+    startingBid: 800,
+    rating: 4.95,
+    reviewCount: 67,
+    bidsCount: 24,
+    endsIn: "45m",
+    host: "Devon C.",
+    hostSince: "2022",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+    description:
+      "The fastest production car ever built. 1,020 hp, 0-60 in 1.99 seconds. Tri-motor all-wheel drive, 396-mile range, and a 17-inch touchscreen. Delivered clean and fully charged. Perfect for a weekend in the hills or a statement arrival.",
+    features: [
+      "1,020 hp",
+      "0–60 in 1.99s",
+      "396 mi range",
+      "Full self-driving",
+      "22\" wheels",
+      "Insurance included",
+      "Unlimited miles",
+      "Delivery available",
+    ],
+  },
+  {
+    id: "4",
+    title: "Lakefront Cabin Retreat",
+    location: "Lake Tahoe, CA",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=800&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 3100,
+    startingBid: 2400,
+    rating: 4.99,
+    reviewCount: 211,
+    bidsCount: 31,
+    endsIn: "5h 02m",
+    host: "Anya P.",
+    hostSince: "2018",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+    description:
+      "Waking up to a lake on your doorstep never gets old. This architect-designed cabin sits directly on the water with a private dock, hot tub, and panoramic mountain views. Ski resorts are 20 minutes away. Fire pit included.",
+    features: [
+      "4 Bedrooms",
+      "3 Bathrooms",
+      "Private dock",
+      "Hot tub",
+      "Fire pit",
+      "Mountain views",
+      "Kayaks included",
+      "Ski storage",
+    ],
+  },
+  {
+    id: "5",
+    title: "DJI Inspire 3 Drone Kit",
+    location: "Austin, TX",
+    category: "Equipment",
+    imageUrl:
+      "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
+      "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&q=80",
+      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&q=80",
+      "https://images.unsplash.com/photo-1533310266094-8898a03807dd?w=800&q=80",
+    ],
+    type: "fixed",
+    price: 420,
+    rating: 4.88,
+    reviewCount: 44,
+    host: "Sam T.",
+    hostSince: "2023",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+    description:
+      "Professional-grade aerial cinematography kit. Includes DJI Inspire 3 body, Zenmuse X9-8K camera, 3 batteries, ND filter set, and carry case. Perfect for film productions, real estate, or events. FAA Part 107 certification required.",
+    features: [
+      "8K RAW video",
+      "3 batteries",
+      "ND filter set",
+      "Carry case",
+      "45 min flight time",
+      "6km range",
+      "Obstacle avoidance",
+      "On-site support",
+    ],
+  },
+  {
+    id: "6",
+    title: "Luxury Penthouse Suite",
+    location: "Miami Beach, FL",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 8900,
+    startingBid: 7000,
+    rating: 4.96,
+    reviewCount: 183,
+    bidsCount: 12,
+    endsIn: "11h 30m",
+    host: "Isabella M.",
+    hostSince: "2020",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80",
+    description:
+      "The entire top floor of South Beach's most iconic tower. Full wraparound terrace, private plunge pool, and unobstructed ocean and city views. Concierge, chef's kitchen, and Rolls-Royce house car on request. No compromises.",
+    features: [
+      "5 Bedrooms",
+      "5.5 Bathrooms",
+      "5,400 sq ft",
+      "Private terrace",
+      "Plunge pool",
+      "Ocean views",
+      "24h concierge",
+      "Valet parking",
+    ],
+  },
+  {
+    id: "7",
+    title: "36ft Sailing Catamaran",
+    location: "Newport Beach, CA",
+    category: "Boat",
+    imageUrl:
+      "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=800&q=80",
+      "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&q=80",
+      "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=800&q=80",
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 2600,
+    startingBid: 2000,
+    rating: 4.93,
+    reviewCount: 56,
+    bidsCount: 9,
+    endsIn: "1d 3h",
+    host: "Leo B.",
+    hostSince: "2020",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1463453091185-61582044d556?w=200&q=80",
+    description:
+      "A performance catamaran built for bluewater cruising and Pacific channel crossings. Two en-suite cabins, a fully equipped galley, solar panels, and a watermaker. Skip the crowds and spend the weekend anchored in Catalina.",
+    features: [
+      "2 Cabins",
+      "2 Heads",
+      "36ft LOA",
+      "Solar + watermaker",
+      "Autopilot",
+      "VHF + AIS",
+      "Captain optional",
+      "Snorkel gear",
+    ],
+  },
+  {
+    id: "8",
+    title: "Creative Studio Space",
+    location: "Brooklyn, NY",
+    category: "Office",
+    imageUrl:
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
+      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80",
+      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
+      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=80",
+    ],
+    type: "fixed",
+    price: 1800,
+    rating: 4.81,
+    reviewCount: 72,
+    host: "Priya K.",
+    hostSince: "2021",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&q=80",
+    description:
+      "A light-filled creative studio in DUMBO with exposed concrete, 12-foot ceilings, and a blank-canvas aesthetic. Includes a private recording booth, fiber internet, and a rooftop terrace. Ideal for agencies, photo shoots, and startups.",
+    features: [
+      "2,000 sq ft",
+      "Recording booth",
+      "1 Gbps fiber",
+      "Rooftop terrace",
+      "Kitchen + lounge",
+      "4K projector",
+      "Standing desks",
+      "24/7 access",
+    ],
+  },
+  {
+    id: "9",
+    title: "Range Rover Sport HSE",
+    location: "Chicago, IL",
+    category: "Car",
+    imageUrl:
+      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80",
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+      "https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&q=80",
+    ],
+    type: "fixed",
+    price: 950,
+    rating: 4.87,
+    reviewCount: 39,
+    host: "Noah W.",
+    hostSince: "2022",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200&q=80",
+    description:
+      "The Sport HSE in Santorini Black with tan Pivi Pro leather. Loaded with the Meridian sound system, head-up display, and air suspension. Great for a family trip or a client impression. Delivered to your door.",
+    features: [
+      "395 hp",
+      "AWD",
+      "Tan leather",
+      "Air suspension",
+      "Panoramic roof",
+      "Insurance included",
+      "Free delivery",
+      "Unlimited miles",
+    ],
+  },
+  {
+    id: "10",
+    title: "Desert Compound Estate",
+    location: "Scottsdale, AZ",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 6400,
+    startingBid: 5500,
+    rating: 4.92,
+    reviewCount: 127,
+    bidsCount: 21,
+    endsIn: "8h 45m",
+    host: "Rachel F.",
+    hostSince: "2019",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80",
+    description:
+      "A secluded Sonoran desert estate on 4 acres. Three connected casitas, a negative-edge pool overlooking Camelback Mountain, an outdoor kitchen, and a private putting green. This is Arizona the way it's meant to be experienced.",
+    features: [
+      "5 Bedrooms",
+      "5 Bathrooms",
+      "4 acres",
+      "Negative-edge pool",
+      "Putting green",
+      "Outdoor kitchen",
+      "Mountain views",
+      "Tesla charger",
+    ],
+  },
+  {
+    id: "11",
+    title: "RED Cinema Camera Package",
+    location: "Nashville, TN",
+    category: "Equipment",
+    imageUrl:
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&q=80",
+      "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&q=80",
+      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&q=80",
+      "https://images.unsplash.com/photo-1533310266094-8898a03807dd?w=800&q=80",
+    ],
+    type: "auction",
+    currentBid: 880,
+    startingBid: 700,
+    rating: 4.94,
+    reviewCount: 28,
+    bidsCount: 15,
+    endsIn: "3h 20m",
+    host: "Tyler M.",
+    hostSince: "2022",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&q=80",
+    description:
+      "Full RED MONSTRO 8K VV package. Body, PL mount, Zeiss CP.3 prime set (18, 25, 35, 50, 85mm), Teradek wireless video, DJI RS 3 Pro gimbal, and twin Atlas carbon fiber sticks. Ready for your next feature or commercial shoot.",
+    features: [
+      "RED MONSTRO 8K",
+      "5x Zeiss CP.3 primes",
+      "Teradek Bolt",
+      "DJI RS 3 Pro",
+      "Pelican cases",
+      "V-Mount batteries",
+      "Follow focus",
+      "Technician available",
+    ],
+  },
+  {
+    id: "12",
+    title: "Glass House on the Cliffs",
+    location: "Big Sur, CA",
+    category: "Home",
+    imageUrl:
+      "https://images.unsplash.com/photo-1459767129954-1b1c1f9b9ace?w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1459767129954-1b1c1f9b9ace?w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+    ],
+    type: "fixed",
+    price: 9200,
+    rating: 5.0,
+    reviewCount: 64,
+    host: "Emma V.",
+    hostSince: "2020",
+    hostAvatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80",
+    description:
+      "Nothing separates you from the Pacific except glass. Cantilevered over the cliffs of Big Sur, this Richard Neutra–inspired home is a mile from the nearest neighbor. Watch whales from the hot tub. Fall asleep to the sound of the ocean below.",
+    features: [
+      "3 Bedrooms",
+      "2 Bathrooms",
+      "Cliff-edge hot tub",
+      "Ocean views",
+      "Starlink internet",
+      "Fireplace",
+      "Chef's kitchen",
+      "EV charging",
+    ],
+  },
+];
+
+export function getListingById(id: string): ListingDetail | undefined {
+  return LISTINGS.find((l) => l.id === id);
+}
