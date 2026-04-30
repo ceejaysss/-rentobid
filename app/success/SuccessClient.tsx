@@ -30,7 +30,7 @@ export default function SuccessClient({ sessionId }: Props) {
       let userId: string | null = null;
 
       try {
-        const vRes = await fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`);
+        const vRes = await fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId ?? "")}`);
         const vJson = await vRes.json();
 
         if (!vRes.ok || vJson.error) {
