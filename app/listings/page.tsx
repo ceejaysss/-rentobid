@@ -74,7 +74,20 @@ export default async function ListingsPage() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[listings] fetch error:", error.message);
+    console.error("[listings] fetch error:", error.code, error.message);
+  }
+
+  // Surface fetch errors in dev so they don't silently produce empty pages
+  if (error && process.env.NODE_ENV === "development") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white p-8 font-mono text-sm">
+        <div className="max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="font-bold text-red-700">Supabase fetch error</p>
+          <p className="mt-1 text-red-600">{error.message}</p>
+          <p className="mt-2 text-xs text-red-400">code: {error.code}</p>
+        </div>
+      </div>
+    );
   }
 
   const listings: Listing[] = (data ?? []).map(rowToListing);
