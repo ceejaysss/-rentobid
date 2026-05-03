@@ -63,6 +63,10 @@ interface DbRow {
 function rowToDetail(row: DbRow): ListingDetail {
   const endsIn = formatEndsIn(row.auction_end_time);
   const isAuction = !!endsIn;
+  console.log(
+    "[listing detail] id:", row.id,
+    "image_url:", row.image_url ?? "(null, using default)"
+  );
   return {
     id: row.id,
     title: row.title,

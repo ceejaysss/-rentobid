@@ -15,13 +15,11 @@ export async function createListing(
   formData: FormData
 ): Promise<CreateListingState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData?.user) {
     redirect("/auth/login");
   }
+  const user = authData.user;
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -33,9 +31,11 @@ export async function createListing(
     listingType === "auction"
       ? String(formData.get("auction_end_time") ?? "").trim()
       : "";
+  // image_url is set by the client-side upload in CreateListingForm (Supabase public URL or pasted URL)
   const imageUrlRaw = String(formData.get("image_url") ?? "").trim();
   const videoUrl = String(formData.get("video_url") ?? "").trim();
-  const imageFile = formData.get("image_file") as File | null;
+
+  console.log("[createListing] image_url received from form:", imageUrlRaw || "(none)");
 
   const fieldErrors: Partial<Record<string, string>> = {};
 
@@ -77,24 +77,9 @@ export async function createListing(
     return { fieldErrors };
   }
 
-  // Upload image file if provided; fall back to pasted URL
-  let imageUrl: string | null = imageUrlRaw || null;
-  if (imageFile && imageFile.size > 0) {
-    const ext = imageFile.name.split(".").pop() ?? "jpg";
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabaseServer.storage
-      .from("listing-images")
-      .upload(path, imageFile, { contentType: imageFile.type });
-
-    if (uploadError) {
-      return { error: `Image upload failed: ${uploadError.message}` };
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabaseServer.storage.from("listing-images").getPublicUrl(path);
-    imageUrl = publicUrl;
-  }
+  // Image URL was uploaded client-side to Supabase Storage; server action just receives the public URL
+  const imageUrl: string | null = imageUrlRaw || null;
+  console.log("[createListing] saving image_url to listings table:", imageUrl ?? "(null — no photo)");
 
   // Insert listing and get ID back so we can record ownership
   const { data: inserted, error } = await supabaseServer

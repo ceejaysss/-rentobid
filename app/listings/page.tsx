@@ -46,14 +46,20 @@ function rowToListing(row: DbListing): Listing {
   const endsIn = formatEndsIn(row.auction_end_time);
   const isAuction = !!endsIn;
 
+  const DEFAULT_LISTING_IMAGE =
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80";
+  const resolvedImageUrl = row.image_url ?? DEFAULT_LISTING_IMAGE;
+  console.log(
+    "[listings] id:", row.id,
+    "image_url:", row.image_url ?? "(null, using default)"
+  );
+
   return {
     id: String(row.id),
     title: row.title,
     location: row.location ?? "Location TBD",
     category: toCategory(row.category),
-    imageUrl:
-      row.image_url ??
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+    imageUrl: resolvedImageUrl,
     type: isAuction ? "auction" : "fixed",
     price: isAuction ? undefined : (row.price_base ?? undefined),
     startingBid: isAuction ? (row.price_base ?? undefined) : undefined,

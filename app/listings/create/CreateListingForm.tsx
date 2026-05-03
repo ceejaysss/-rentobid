@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useRef } from "react";
 import { createListing } from "../../actions/createListing";
+import { createClient } from "../../lib/supabase/client";
 
 type ListingType = "fixed" | "auction";
 
@@ -40,23 +41,76 @@ const inputClass =
 export default function CreateListingForm() {
   const [state, action, pending] = useActionState(createListing, undefined);
   const [listingType, setListingType] = useState<ListingType>("fixed");
+
+  // Image state: separate concerns
+  // imagePreview = blob URL for immediate display; imageSource = actual URL submitted
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageSource, setImageSource] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    } else {
+    if (!file) {
       setImagePreview(null);
+      setImageSource("");
+      return;
     }
+
+    // Show blob-URL preview immediately — no wait
+    const blobUrl = URL.createObjectURL(file);
+    setImagePreview(blobUrl);
+    setUploading(true);
+    setUploadError(null);
+
+    const supabase = createClient();
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData?.user) {
+      setUploadError("You must be signed in to upload photos.");
+      setImagePreview(null);
+      setUploading(false);
+      return;
+    }
+
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${authData.user.id}/${Date.now()}.${ext}`;
+
+    console.log(
+      "[CreateListingForm] uploading",
+      file.name,
+      `(${file.size} bytes)`,
+      "→ storage path:",
+      path
+    );
+
+    const { error } = await supabase.storage
+      .from("listing-images")
+      .upload(path, file, { contentType: file.type });
+
+    if (error) {
+      console.error("[CreateListingForm] upload failed:", error.message);
+      setUploadError(`Photo upload failed: ${error.message}`);
+      setImagePreview(null);
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("listing-images").getPublicUrl(path);
+
+    console.log("[CreateListingForm] upload succeeded, public URL:", publicUrl);
+    setImageSource(publicUrl);
+    setUploading(false);
   }
 
   function removeImage() {
     setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setImageSource("");
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   return (
@@ -190,13 +244,27 @@ export default function CreateListingForm() {
         )}
       </div>
 
-      {/* Image upload */}
+      {/* Image upload — client-side to Supabase Storage */}
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium text-gray-700">
           Listing photo (optional)
         </span>
 
-        {imagePreview ? (
+        {/* Hidden field carries the Supabase public URL (or pasted URL) to the server action */}
+        <input type="hidden" name="image_url" value={imageSource} />
+
+        {uploadError && (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {uploadError}
+          </p>
+        )}
+
+        {uploading ? (
+          <div className="flex items-center gap-3 rounded-xl border border-gray-200 py-8 px-4">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+            <span className="text-sm text-gray-500">Uploading photo…</span>
+          </div>
+        ) : imagePreview ? (
           <div className="relative overflow-hidden rounded-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -207,7 +275,7 @@ export default function CreateListingForm() {
             <button
               type="button"
               onClick={removeImage}
-              className="absolute right-2 top-2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white hover:bg-black/80 transition-colors"
+              className="absolute right-2 top-2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-black/80"
             >
               Remove
             </button>
@@ -238,25 +306,28 @@ export default function CreateListingForm() {
 
         <input
           ref={fileInputRef}
-          id="image_file"
-          name="image_file"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleFileChange}
           className="hidden"
         />
 
-        <input
-          id="image_url"
-          name="image_url"
-          type="url"
-          placeholder="Or paste an image URL (e.g. Unsplash)…"
-          className={inputClass}
-        />
-        <p className="text-xs text-gray-400">
-          Upload a photo or paste an image URL. Leave both blank for a default
-          photo.
-        </p>
+        {/* URL paste — only shown when no file is selected; updates imageSource directly */}
+        {!imagePreview && !uploading && (
+          <>
+            <input
+              type="url"
+              placeholder="Or paste an image URL (e.g. Unsplash)…"
+              value={imageSource}
+              onChange={(e) => setImageSource(e.target.value)}
+              className={inputClass}
+            />
+            <p className="text-xs text-gray-400">
+              Upload a photo or paste an image URL. Leave both blank for a
+              default photo.
+            </p>
+          </>
+        )}
       </div>
 
       <Field
@@ -275,10 +346,15 @@ export default function CreateListingForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || uploading}
         className="mt-2 flex w-full items-center justify-center rounded-xl bg-black py-3.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? (
+        {uploading ? (
+          <>
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white mr-2" />
+            Uploading photo…
+          </>
+        ) : pending ? (
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
         ) : (
           "Publish listing"
