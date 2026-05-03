@@ -29,10 +29,10 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // Calling getUser() triggers a token refresh when the access token is
-  // near-expired. The result is intentionally ignored here — the proxy's
-  // only job is to keep the session alive.
-  await supabase.auth.getUser();
+  // getSession() reads cookies only — no network call, no rate limit exposure.
+  // The proxy's only job is to refresh session cookies when near-expired;
+  // actual identity verification happens in server components/actions via getUser().
+  await supabase.auth.getSession();
 
   return supabaseResponse;
 }
