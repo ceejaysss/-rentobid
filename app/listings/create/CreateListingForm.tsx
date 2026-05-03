@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useRef } from "react";
 import { createListing } from "../../actions/createListing";
+
+type ListingType = "fixed" | "auction";
 
 const CATEGORIES = ["Home", "Car", "Equipment", "Boat", "Office"] as const;
 
@@ -37,6 +39,25 @@ const inputClass =
 
 export default function CreateListingForm() {
   const [state, action, pending] = useActionState(createListing, undefined);
+  const [listingType, setListingType] = useState<ListingType>("fixed");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
+  }
+
+  function removeImage() {
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -46,11 +67,29 @@ export default function CreateListingForm() {
         </div>
       )}
 
-      <Field
-        label="Title"
-        name="title"
-        error={state?.fieldErrors?.title}
-      >
+      {/* Listing type toggle */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium text-gray-700">Listing type</span>
+        <div className="flex overflow-hidden rounded-xl border border-gray-200">
+          {(["fixed", "auction"] as ListingType[]).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setListingType(type)}
+              className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                listingType === type
+                  ? "bg-black text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {type === "fixed" ? "Fixed Price" : "Auction"}
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="listing_type" value={listingType} />
+      </div>
+
+      <Field label="Title" name="title" error={state?.fieldErrors?.title}>
         <input
           id="title"
           name="title"
@@ -134,38 +173,105 @@ export default function CreateListingForm() {
           />
         </Field>
 
-        <Field
-          label="Auction end time (optional)"
-          name="auction_end_time"
-          error={state?.fieldErrors?.auction_end_time}
-        >
-          <input
-            id="auction_end_time"
+        {listingType === "auction" && (
+          <Field
+            label="Auction end time"
             name="auction_end_time"
-            type="datetime-local"
-            className={inputClass}
-          />
-        </Field>
+            error={state?.fieldErrors?.auction_end_time}
+          >
+            <input
+              id="auction_end_time"
+              name="auction_end_time"
+              type="datetime-local"
+              required
+              className={inputClass}
+            />
+          </Field>
+        )}
       </div>
 
-      <Field
-        label="Image URL (optional)"
-        name="image_url"
-        error={state?.fieldErrors?.image_url}
-      >
+      {/* Image upload */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium text-gray-700">
+          Listing photo (optional)
+        </span>
+
+        {imagePreview ? (
+          <div className="relative overflow-hidden rounded-xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="h-48 w-full object-cover"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute right-2 top-2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white hover:bg-black/80 transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-8 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
+            </svg>
+            Upload a photo
+          </button>
+        )}
+
+        <input
+          ref={fileInputRef}
+          id="image_file"
+          name="image_file"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
         <input
           id="image_url"
           name="image_url"
           type="url"
-          placeholder="https://images.unsplash.com/..."
+          placeholder="Or paste an image URL (e.g. Unsplash)…"
+          className={inputClass}
+        />
+        <p className="text-xs text-gray-400">
+          Upload a photo or paste an image URL. Leave both blank for a default
+          photo.
+        </p>
+      </div>
+
+      <Field
+        label="Video tour URL (optional)"
+        name="video_url"
+        error={state?.fieldErrors?.video_url}
+      >
+        <input
+          id="video_url"
+          name="video_url"
+          type="url"
+          placeholder="https://youtube.com/watch?v=…"
           className={inputClass}
         />
       </Field>
-
-      <p className="text-xs text-gray-400">
-        Tip: paste any Unsplash image URL for a great-looking listing.
-        Leave blank for a default photo.
-      </p>
 
       <button
         type="submit"

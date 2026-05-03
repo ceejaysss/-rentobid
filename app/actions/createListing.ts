@@ -14,7 +14,6 @@ export async function createListing(
   _prev: CreateListingState,
   formData: FormData
 ): Promise<CreateListingState> {
-  // Auth check
   const supabase = await createClient();
   const {
     data: { user },
@@ -24,16 +23,20 @@ export async function createListing(
     redirect("/auth/login");
   }
 
-  // Extract fields
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
   const priceRaw = String(formData.get("price_base") ?? "").trim();
-  const auctionEndRaw = String(formData.get("auction_end_time") ?? "").trim();
-  const imageUrl = String(formData.get("image_url") ?? "").trim();
+  const listingType = String(formData.get("listing_type") ?? "fixed").trim();
+  const auctionEndRaw =
+    listingType === "auction"
+      ? String(formData.get("auction_end_time") ?? "").trim()
+      : "";
+  const imageUrlRaw = String(formData.get("image_url") ?? "").trim();
+  const videoUrl = String(formData.get("video_url") ?? "").trim();
+  const imageFile = formData.get("image_file") as File | null;
 
-  // Validate
   const fieldErrors: Partial<Record<string, string>> = {};
 
   if (!title || title.length < 3) {
@@ -55,14 +58,18 @@ export async function createListing(
   }
 
   let auctionEndTime: string | null = null;
-  if (auctionEndRaw) {
-    const parsed = new Date(auctionEndRaw);
-    if (isNaN(parsed.getTime())) {
-      fieldErrors.auction_end_time = "Enter a valid date and time.";
-    } else if (parsed <= new Date()) {
-      fieldErrors.auction_end_time = "Auction end time must be in the future.";
+  if (listingType === "auction") {
+    if (!auctionEndRaw) {
+      fieldErrors.auction_end_time = "Auction end time is required.";
     } else {
-      auctionEndTime = parsed.toISOString();
+      const parsed = new Date(auctionEndRaw);
+      if (isNaN(parsed.getTime())) {
+        fieldErrors.auction_end_time = "Enter a valid date and time.";
+      } else if (parsed <= new Date()) {
+        fieldErrors.auction_end_time = "Auction end time must be in the future.";
+      } else {
+        auctionEndTime = parsed.toISOString();
+      }
     }
   }
 
@@ -70,14 +77,33 @@ export async function createListing(
     return { fieldErrors };
   }
 
-  // Insert — use service role to bypass RLS while user-level policies aren't wired yet
+  // Upload image file if provided; fall back to pasted URL
+  let imageUrl: string | null = imageUrlRaw || null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.split(".").pop() ?? "jpg";
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabaseServer.storage
+      .from("listing-images")
+      .upload(path, imageFile, { contentType: imageFile.type });
+
+    if (uploadError) {
+      return { error: `Image upload failed: ${uploadError.message}` };
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabaseServer.storage.from("listing-images").getPublicUrl(path);
+    imageUrl = publicUrl;
+  }
+
   const { error } = await supabaseServer.from("listings").insert({
     owner_id: user.id,
     title,
     description,
     category,
     location,
-    image_url: imageUrl || null,
+    image_url: imageUrl,
+    video_url: videoUrl || null,
     price_base: priceBase,
     auction_end_time: auctionEndTime,
     status: "active",
