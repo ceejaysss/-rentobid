@@ -11,12 +11,33 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "listingId and amount required" }, { status: 400 });
   }
 
-  const listing = getListingById(listingId);
-  if (!listing) {
+  // Resolve listing: Supabase first (real UUID listings), then static mock data
+  let isAuction = false;
+  let found = false;
+
+  const { data: row } = await supabaseServer
+    .from("listings")
+    .select("auction_end_time")
+    .eq("id", listingId)
+    .maybeSingle();
+
+  if (row) {
+    found = true;
+    const endsAt = row.auction_end_time ? new Date(row.auction_end_time) : null;
+    isAuction = !!endsAt && endsAt > new Date();
+  } else {
+    const staticListing = getListingById(listingId);
+    if (staticListing) {
+      found = true;
+      isAuction = staticListing.type === "auction";
+    }
+  }
+
+  if (!found) {
     return Response.json({ error: "Listing not found" }, { status: 404 });
   }
 
-  if (listing.type !== "auction") {
+  if (!isAuction) {
     return Response.json(
       { error: "Bidding is not allowed on fixed-price listings" },
       { status: 403 }

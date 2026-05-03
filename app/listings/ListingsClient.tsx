@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import ListingCard, { type Listing } from "../components/ListingCard";
 import NavbarUserMenu from "../components/NavbarUserMenu";
+import type { User } from "@supabase/supabase-js";
 
 const CATEGORIES = ["All", "Home", "Car", "Equipment", "Boat", "Office"] as const;
 type Category = typeof CATEGORIES[number];
@@ -37,9 +38,10 @@ function sortListings(listings: Listing[], sortBy: SortOption): Listing[] {
 
 interface Props {
   listings: Listing[];
+  initialUser: User | null;
 }
 
-export default function ListingsClient({ listings }: Props) {
+export default function ListingsClient({ listings, initialUser }: Props) {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [sortBy, setSortBy] = useState<SortOption>("Ending soon");
 
@@ -79,7 +81,7 @@ export default function ListingsClient({ listings }: Props) {
             >
               Browse listings
             </Link>
-            <NavbarUserMenu />
+            <NavbarUserMenu initialUser={initialUser} />
           </div>
         </div>
       </nav>

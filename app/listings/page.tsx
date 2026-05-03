@@ -1,6 +1,8 @@
 import { supabaseServer } from "../lib/supabase-server";
+import { createClient } from "../lib/supabase/server";
 import ListingsClient from "./ListingsClient";
 import { type Listing } from "../components/ListingCard";
+import type { User } from "@supabase/supabase-js";
 
 const VALID_CATEGORIES = ["Home", "Car", "Equipment", "Boat", "Office"] as const;
 type Category = (typeof VALID_CATEGORIES)[number];
@@ -15,7 +17,7 @@ function toCategory(val: string | null | undefined): Category {
 function formatEndsIn(endTime: string | null): string | undefined {
   if (!endTime) return undefined;
   const diff = new Date(endTime).getTime() - Date.now();
-  if (diff <= 0) return undefined; // auction ended — treat as fixed
+  if (diff <= 0) return undefined;
   const totalMinutes = Math.floor(diff / 60000);
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
@@ -42,7 +44,7 @@ interface DbListing {
 
 function rowToListing(row: DbListing): Listing {
   const endsIn = formatEndsIn(row.auction_end_time);
-  const isAuction = !!endsIn; // only live if auction hasn't ended
+  const isAuction = !!endsIn;
 
   return {
     id: String(row.id),
@@ -65,19 +67,26 @@ function rowToListing(row: DbListing): Listing {
 }
 
 export default async function ListingsPage() {
-  const { data, error } = await supabaseServer
-    .from("listings")
-    .select(
-      "id, title, location, category, image_url, price_base, current_bid, auction_end_time, status, rating, review_count, bids_count, host"
-    )
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+  const supabaseSSR = await createClient();
+
+  const [
+    { data: { user } },
+    { data, error },
+  ] = await Promise.all([
+    supabaseSSR.auth.getUser(),
+    supabaseServer
+      .from("listings")
+      .select(
+        "id, title, location, category, image_url, price_base, current_bid, auction_end_time, status, rating, review_count, bids_count, host"
+      )
+      .eq("status", "active")
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (error) {
     console.error("[listings] fetch error:", error.code, error.message);
   }
 
-  // Surface fetch errors in dev so they don't silently produce empty pages
   if (error && process.env.NODE_ENV === "development") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white p-8 font-mono text-sm">
@@ -92,5 +101,5 @@ export default async function ListingsPage() {
 
   const listings: Listing[] = (data ?? []).map(rowToListing);
 
-  return <ListingsClient listings={listings} />;
+  return <ListingsClient listings={listings} initialUser={user ?? null} />;
 }
