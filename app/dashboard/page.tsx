@@ -167,13 +167,11 @@ function DashboardListingCard({ listing }: { listing: DbListing }) {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData?.user) redirect("/auth/login");
+  const user = authData.user;
 
-  if (!user) redirect("/auth/login");
-
-  const { data: rows } = await supabaseServer
+  const { data: rows, error: listingsError } = await supabaseServer
     .from("listings")
     .select(
       "id, title, location, category, image_url, price_base, current_bid, auction_end_time, status, bids_count"
@@ -181,9 +179,13 @@ export default async function DashboardPage() {
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
+  if (listingsError) {
+    console.error("[dashboard] listings query failed:", listingsError.message);
+  }
+
   const listings: DbListing[] = rows ?? [];
 
-  // Compute stats
+  // Compute stats from listings data
   const totalListings = listings.length;
   const activeAuctions = listings.filter(
     (l) => l.auction_end_time && new Date(l.auction_end_time) > new Date()
@@ -193,16 +195,19 @@ export default async function DashboardPage() {
     0
   );
 
-  // Views today (aggregated from listing_stats)
+  // Views today from listing_stats — optional table, fails gracefully
   let viewsToday = 0;
   if (listings.length > 0) {
-    const { data: statsRows } = await supabaseServer
+    const { data: statsRows, error: statsError } = await supabaseServer
       .from("listing_stats")
       .select("views_today")
       .in(
         "listing_id",
         listings.map((l) => l.id)
       );
+    if (statsError) {
+      console.error("[dashboard] listing_stats query failed:", statsError.message);
+    }
     viewsToday = (statsRows ?? []).reduce(
       (sum, s) => sum + ((s.views_today as number) ?? 0),
       0
