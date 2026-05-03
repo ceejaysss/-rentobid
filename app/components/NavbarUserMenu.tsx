@@ -56,7 +56,7 @@ export default function NavbarUserMenu({ initialUser }: Props) {
   return (
     <div className="relative flex items-center gap-4">
       <Link
-        href="/listings"
+        href="/dashboard"
         className="hidden text-sm font-medium text-gray-700 transition-colors hover:text-black md:block"
       >
         Dashboard

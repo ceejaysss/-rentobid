@@ -96,22 +96,35 @@ export async function createListing(
     imageUrl = publicUrl;
   }
 
-  const { error } = await supabaseServer.from("listings").insert({
-    owner_id: user.id,
-    title,
-    description,
-    category,
-    location,
-    image_url: imageUrl,
-    video_url: videoUrl || null,
-    price_base: priceBase,
-    auction_end_time: auctionEndTime,
-    status: "active",
-  });
+  // Insert listing and get ID back so we can record ownership
+  const { data: inserted, error } = await supabaseServer
+    .from("listings")
+    .insert({
+      owner_id: user.id,
+      title,
+      description,
+      category,
+      location,
+      image_url: imageUrl,
+      video_url: videoUrl || null,
+      price_base: priceBase,
+      auction_end_time: auctionEndTime,
+      status: "active",
+    })
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return { error: error.message };
   }
 
-  redirect("/listings");
+  // Record in listing_owners so the auction upsell banner can detect ownership
+  if (inserted?.id) {
+    await supabaseServer
+      .from("listing_owners")
+      .insert({ listing_id: String(inserted.id), user_id: user.id });
+    // Non-fatal — listing is already created; worst case the upsell banner won't show
+  }
+
+  redirect("/dashboard");
 }
